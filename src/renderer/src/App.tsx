@@ -93,6 +93,17 @@ export default function App(): JSX.Element {
     return cleanup
   }, [setView])
 
+  // Make body transparent in widget mode, opaque in panel mode
+  useEffect(() => {
+    if (currentView === 'widget') {
+      document.body.style.background = 'transparent'
+      document.documentElement.style.background = 'transparent'
+    } else {
+      document.body.style.background = ''
+      document.documentElement.style.background = ''
+    }
+  }, [currentView])
+
   // Widget mode — no nav
   if (currentView === 'widget') {
     return <MiniWidget />

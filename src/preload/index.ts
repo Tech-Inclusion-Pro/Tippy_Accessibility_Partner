@@ -4,9 +4,12 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   // Window management
   window: {
+    expandWidget: () => ipcRenderer.invoke('window:expandWidget'),
+    collapseWidget: () => ipcRenderer.invoke('window:collapseWidget'),
     expand: () => ipcRenderer.invoke('window:expand'),
     collapse: () => ipcRenderer.invoke('window:collapse'),
-    showPanel: (view: string) => ipcRenderer.invoke('window:showPanel', view)
+    showPanel: (view: string) => ipcRenderer.invoke('window:showPanel', view),
+    moveBy: (dx: number, dy: number) => ipcRenderer.invoke('window:moveBy', dx, dy)
   },
 
   // Analysis
@@ -67,6 +70,13 @@ const api = {
     const handler = (_event: Electron.IpcRendererEvent, data: any): void => callback(data)
     ipcRenderer.on('analysis:status', handler)
     return () => ipcRenderer.removeListener('analysis:status', handler)
+  },
+
+  // Widget state changes (collapsed/expanded)
+  onWidgetState: (callback: (state: 'collapsed' | 'expanded') => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: any): void => callback(state)
+    ipcRenderer.on('widget:state', handler)
+    return () => ipcRenderer.removeListener('widget:state', handler)
   }
 }
 

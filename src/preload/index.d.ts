@@ -8,9 +8,12 @@ interface IpcResponse<T = any> {
 
 interface TippyAPI {
   window: {
+    expandWidget: () => Promise<IpcResponse>
+    collapseWidget: () => Promise<IpcResponse>
     expand: () => Promise<IpcResponse>
     collapse: () => Promise<IpcResponse>
     showPanel: (view: string) => Promise<IpcResponse>
+    moveBy: (dx: number, dy: number) => Promise<IpcResponse>
   }
   analyze: {
     text: (text: string, frameworks: string[]) => Promise<IpcResponse>
@@ -46,6 +49,7 @@ interface TippyAPI {
   ) => () => void
   onNavigate: (callback: (view: string) => void) => () => void
   onAnalysisStatus: (callback: (data: { status: string; message: string }) => void) => () => void
+  onWidgetState: (callback: (state: 'collapsed' | 'expanded') => void) => () => void
 }
 
 declare global {
