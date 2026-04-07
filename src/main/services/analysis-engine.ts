@@ -3,6 +3,7 @@ import { analyzeReadability } from './text-analyzer'
 import { buildTippySystemPrompt } from './prompt-builder'
 import { getProviderManager } from './provider-manager'
 import { historyService } from './history.service'
+import { screenerService } from './screener.service'
 
 export async function analyzeText(
   text: string,
@@ -11,10 +12,15 @@ export async function analyzeText(
 ): Promise<{ id: string }> {
   const scores = analyzeReadability(text)
 
+  // Load screener content for active frameworks
+  const screeners = screenerService.getScreenersForFrameworks(frameworks)
+  const screenerContent = screeners.map((s) => ({ name: s.name, content: s.content }))
+
   const systemPrompt = buildTippySystemPrompt({
     analysisType: 'text',
     frameworks,
-    readabilityScores: scores
+    readabilityScores: scores,
+    screenerContent
   })
 
   const providerManager = getProviderManager()

@@ -5,6 +5,7 @@ export interface PromptContext {
   readabilityScores?: any
   axeResults?: any
   wcagCriteria?: any[]
+  screenerContent?: { name: string; content: string }[]
 }
 
 // Layer 1: Identity & Personality
@@ -117,9 +118,22 @@ ${JSON.stringify(ctx.axeResults, null, 2)}
   return parts.join('\n')
 }
 
-// Layer 4: Knowledge Base (placeholder for Phase 2)
-function buildKnowledgeBaseLayer(): string {
-  return '' // Phase 2: RAG from WCAG techniques database
+// Layer 4: Screener Knowledge Base
+function buildScreenerLayer(screeners?: { name: string; content: string }[]): string {
+  if (!screeners || screeners.length === 0) return ''
+
+  const parts: string[] = [
+    '\n---\n\n## Screener Knowledge Base',
+    'The following screener documents define the detailed criteria and diagnostic questions you MUST use when analyzing content. Run through each applicable screener as a structured pre-flight check before producing your response.\n'
+  ]
+
+  for (const screener of screeners) {
+    parts.push(`### ${screener.name}\n`)
+    parts.push(screener.content)
+    parts.push('')
+  }
+
+  return parts.join('\n')
 }
 
 // Response format
@@ -145,8 +159,8 @@ export function buildTippySystemPrompt(ctx: PromptContext): string {
   const layers: string[] = [
     buildIdentityLayer(),
     buildFrameworkLayer(frameworks),
+    buildScreenerLayer(ctx.screenerContent),
     buildContextLayer(ctx),
-    buildKnowledgeBaseLayer(),
     buildResponseFormat()
   ]
 

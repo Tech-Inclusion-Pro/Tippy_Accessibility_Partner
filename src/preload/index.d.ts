@@ -34,6 +34,14 @@ interface TippyAPI {
       config: any
     ) => Promise<IpcResponse<{ connected: boolean; error?: string }>>
   }
+  screener: {
+    list: () => Promise<IpcResponse<{ id: string; name: string; filename: string; builtIn: boolean; framework: string }[]>>
+    getContent: (id: string) => Promise<IpcResponse<string>>
+    addCustom: (filename: string, content: string) => Promise<IpcResponse<any>>
+    import: () => Promise<IpcResponse<any[]>>
+    delete: (id: string) => Promise<IpcResponse>
+    export: (id: string) => Promise<IpcResponse<{ saved: boolean; path?: string }>>
+  }
   history: {
     list: (
       page?: number,

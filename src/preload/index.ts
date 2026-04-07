@@ -48,6 +48,17 @@ const api = {
     delete: (id: string) => ipcRenderer.invoke('history:delete', id)
   },
 
+  // Screeners (reasoning knowledge base)
+  screener: {
+    list: () => ipcRenderer.invoke('screener:list'),
+    getContent: (id: string) => ipcRenderer.invoke('screener:getContent', id),
+    addCustom: (filename: string, content: string) =>
+      ipcRenderer.invoke('screener:addCustom', filename, content),
+    import: () => ipcRenderer.invoke('screener:import'),
+    delete: (id: string) => ipcRenderer.invoke('screener:delete', id),
+    export: (id: string) => ipcRenderer.invoke('screener:export', id)
+  },
+
   // Stream listeners
   onStreamToken: (
     channel: string,

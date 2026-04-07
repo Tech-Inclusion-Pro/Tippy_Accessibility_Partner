@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { getProviderManager } from '../services/provider-manager'
 import { buildTippySystemPrompt } from '../services/prompt-builder'
+import { screenerService } from '../services/screener.service'
 
 export function registerChatHandlers(): void {
   ipcMain.handle('chat:message', async (event, message: string, history: any[], frameworks: string[]) => {
@@ -8,7 +9,11 @@ export function registerChatHandlers(): void {
       const window = BrowserWindow.fromWebContents(event.sender)
       if (!window) throw new Error('No window')
 
-      const systemPrompt = buildTippySystemPrompt({ userMessage: message, frameworks })
+      // Load screener content for active frameworks
+      const screeners = screenerService.getScreenersForFrameworks(frameworks)
+      const screenerContent = screeners.map((s) => ({ name: s.name, content: s.content }))
+
+      const systemPrompt = buildTippySystemPrompt({ userMessage: message, frameworks, screenerContent })
       const providerManager = getProviderManager()
       const provider = await providerManager.getActiveProvider()
 

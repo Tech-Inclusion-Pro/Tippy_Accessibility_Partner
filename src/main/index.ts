@@ -6,6 +6,7 @@ import { WindowManager } from './window-manager'
 import { registerAllHandlers } from './ipc'
 import { initializeDatabase, closeDatabase } from './db/connection'
 import { loadWCAGData } from './services/wcag-data.service'
+import { screenerService } from './services/screener.service'
 
 let tray: Tray | null = null
 let windowManager: WindowManager | null = null
@@ -59,9 +60,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // Initialize database, WCAG data, and IPC handlers
+  // Initialize database, WCAG data, screeners, and IPC handlers
   initializeDatabase()
   loadWCAGData()
+  screenerService.load()
   registerAllHandlers()
 
   // Create window manager and show widget

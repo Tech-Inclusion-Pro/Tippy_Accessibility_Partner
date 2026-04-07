@@ -1,5 +1,6 @@
 import { SkipLink } from '../components/common/SkipLink'
 import { ProviderConfig } from '../components/settings/ProviderConfig'
+import { ReasoningSettings } from '../components/settings/ReasoningSettings'
 
 export function SettingsView(): JSX.Element {
   return (
@@ -11,6 +12,12 @@ export function SettingsView(): JSX.Element {
       <main id="settings-content" className="flex-1 overflow-y-auto p-4">
         <div className="max-w-md mx-auto flex flex-col gap-8">
           <ProviderConfig />
+
+          <hr className="border-[var(--border-default)]" />
+
+          <ReasoningSettings />
+
+          <hr className="border-[var(--border-default)]" />
 
           <div>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">About</h3>

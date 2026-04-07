@@ -2,6 +2,7 @@ import { BrowserWindow } from 'electron'
 import { buildTippySystemPrompt } from './prompt-builder'
 import { getProviderManager } from './provider-manager'
 import { historyService } from './history.service'
+import { screenerService } from './screener.service'
 
 export interface AxeResult {
   violations: any[]
@@ -67,9 +68,14 @@ export async function analyzeUrl(
 
   window.webContents.send('analysis:status', { status: 'analyzing', message: 'AI analysis in progress...' })
 
+  // Load screener content for active frameworks
+  const screeners = screenerService.getScreenersForFrameworks(frameworks)
+  const screenerContent = screeners.map((s) => ({ name: s.name, content: s.content }))
+
   const systemPrompt = buildTippySystemPrompt({
     analysisType: 'url',
     frameworks,
+    screenerContent,
     axeResults: {
       violationCount: axeResults.violations.length,
       passCount: axeResults.passes.length,
