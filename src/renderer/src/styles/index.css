@@ -1,0 +1,158 @@
+@import 'tailwindcss';
+
+/* ─── TIPPY Brand Colors ─── */
+:root {
+  --tippy-teal: #2dd4bf;
+  --tippy-teal-light: #5eead4;
+  --tippy-teal-dark: #14b8a6;
+  --tippy-purple: #8b5cf6;
+  --tippy-purple-light: #a78bfa;
+  --tippy-purple-dark: #7c3aed;
+  --tippy-blue: #3b82f6;
+  --tippy-blue-light: #60a5fa;
+  --tippy-blue-dark: #2563eb;
+
+  /* Semantic */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Layout */
+  --min-tap-target: 44px;
+
+  /* Focus */
+  --focus-ring-color: var(--tippy-purple);
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
+
+  /* Transitions */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+}
+
+/* ─── Light Theme (default) ─── */
+:root {
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-raised: #ffffff;
+  --bg-muted: #f1f5f9;
+  --bg-hover: #e2e8f0;
+  --bg-active: #cbd5e1;
+  --bg-widget: rgba(255, 255, 255, 0.95);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --text-inverse: #ffffff;
+
+  --border-default: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --shadow-widget: 0 4px 24px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.08);
+  --shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* ─── Dark Theme ─── */
+.dark {
+  --bg-app: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-surface-raised: #334155;
+  --bg-muted: #1e293b;
+  --bg-hover: #334155;
+  --bg-active: #475569;
+  --bg-widget: rgba(30, 41, 59, 0.95);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-inverse: #0f172a;
+
+  --border-default: #334155;
+  --border-strong: #475569;
+
+  --shadow-widget: 0 4px 24px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2);
+  --shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Base Styles ─── */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Focus Styles ─── */
+*:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 4px;
+}
+
+/* ─── Skip Link ─── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--tippy-purple);
+  color: white;
+  border-radius: 0 0 8px 8px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+
+/* ─── Widget-specific (transparent BG) ─── */
+.widget-root {
+  background: transparent;
+  overflow: hidden;
+}
+
+/* ─── Draggable region ─── */
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}

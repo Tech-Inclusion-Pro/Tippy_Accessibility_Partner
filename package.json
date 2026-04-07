@@ -1,0 +1,50 @@
+{
+  "name": "tippy-desktop",
+  "version": "1.0.0",
+  "productName": "TIPPY - Accessibility Partner",
+  "description": "AI accessibility and inclusion partner — WCAG 2.1 AA, UDL, DisCrit, and Plain Language analysis",
+  "main": "./out/main/index.js",
+  "author": "Tech Inclusion Pro",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "start": "electron-vite preview",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "build:unpack": "npm run build && electron-builder --dir",
+    "build:mac": "electron-vite build && electron-builder --mac",
+    "build:win": "electron-vite build && electron-builder --win",
+    "build:linux": "electron-vite build && electron-builder --linux",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.2",
+    "@electron-toolkit/utils": "^4.0.0",
+    "better-sqlite3": "^12.6.2",
+    "clsx": "^2.1.1",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "uuid": "^13.0.0",
+    "zustand": "^5.0.11"
+  },
+  "devDependencies": {
+    "@electron-toolkit/tsconfig": "^2.0.0",
+    "@tailwindcss/vite": "^4.2.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.19.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "electron": "^39.2.6",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^5.0.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3"
+  }
+}
