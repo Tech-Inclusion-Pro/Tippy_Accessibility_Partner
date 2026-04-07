@@ -16,18 +16,20 @@ TIPPY lives on your desktop as a floating, draggable widget — always ready to 
 
 ## Features
 
-- **Floating Desktop Widget** — Draggable TIPPY icon that lives on your desktop; click to expand the chat bar, or open the full panel
+- **Floating Desktop Widget** — Draggable TIPPY icon that lives on your desktop; click to open the full panel
 - **Text Analysis** — Paste text to get readability scores (Flesch-Kincaid) and AI-powered plain language suggestions
 - **URL Analysis** — Enter a URL to run automated accessibility scans (axe-core) with AI-powered remediation guidance
 - **Document Analysis** — Upload files (PDF, DOCX, TXT, HTML) for accessibility review with drag-and-drop support
-- **Chat Interface** — Have conversations with TIPPY about accessibility topics
+- **Per-Screener Reports** — File analyses produce separate report sections for each active screener (WCAG, UDL, DisCrit) with Findings, Recommendations, and Strengths
+- **Custom Screener Guidance** — When custom screeners are loaded, a conversation starter modal lets you provide a guiding question to focus the analysis
+- **Chat Interface** — Have conversations with TIPPY about accessibility topics with natural, contextual responses
 - **Chat Session Management** — Save chat sessions to history, start new chats, or end sessions with automatic saving
 - **Multi-Framework Analysis** — Toggle between WCAG, UDL, DisCrit, and Plain Language frameworks
 - **Local-First AI** — Use Ollama for fully local analysis (no data leaves your machine)
 - **Multi-Provider Cloud AI** — Bring your own API key for Anthropic, OpenAI, or Google Gemini
 - **About Me Personalization** — Enter your name and work context so TIPPY tailors responses to you
 - **First-Time Setup Wizard** — Guided onboarding walks you through personalization and provider setup
-- **Audit History** — All analyses are saved locally for reference
+- **Audit History** — All analyses are saved locally; delete individual items from the list or detail view
 - **Themes Report** — AI-generated report that identifies patterns and recurring themes across your audit history
 - **DOCX Export** — Download any analysis or themes report as a Word document
 - **Global Shortcut** — Toggle TIPPY visibility with `Cmd/Ctrl+Shift+T`
@@ -94,15 +96,14 @@ codesign --force --deep --sign - "/Applications/TIPPY - Accessibility Partner.ap
 
 1. **Launch** — Open TIPPY from your Applications folder, or run `npm run dev` for development
 2. **Widget** — TIPPY appears as a floating, draggable icon on your desktop
-3. **Expand** — Click the icon to reveal the chat input bar
-4. **Full Panel** — Click the arrow to open the full panel with Chat, History, and Settings
-5. **Chat** — Type questions about accessibility or paste content for analysis
-6. **URL Scan** — Paste a URL to run an automated accessibility audit
-7. **Settings** — Configure your AI provider (Ollama, Anthropic, OpenAI, or Google Gemini)
-8. **Upload** — Drag and drop files or click the upload button for document analysis
-9. **History** — View past analyses in the History tab
-10. **Themes Report** — Click "Report on Themes" in History to get an AI-generated patterns analysis
-11. **Toggle** — Press `Cmd/Ctrl+Shift+T` to show/hide TIPPY at any time
+3. **Open Panel** — Click the TIPPY icon to open the full panel with Chat, History, and Settings
+4. **Chat** — Type questions about accessibility or paste content for analysis
+5. **URL Scan** — Paste a URL to run an automated accessibility audit
+6. **Settings** — Configure your AI provider (Ollama, Anthropic, OpenAI, or Google Gemini)
+7. **Upload** — Drag and drop files or click the upload button for document analysis
+8. **History** — View past analyses in the History tab; delete items directly from the list
+9. **Themes Report** — Click "Report on Themes" in History to get an AI-generated patterns analysis
+10. **Toggle** — Press `Cmd/Ctrl+Shift+T` to show/hide TIPPY at any time
 
 ## Architecture
 

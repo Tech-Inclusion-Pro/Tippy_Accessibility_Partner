@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useHistoryStore, HistoryItem } from '../../stores/history.store'
 import { Badge } from '../common/Badge'
 
@@ -9,8 +10,19 @@ const typeVariant = {
 }
 
 export function HistoryList(): JSX.Element {
-  const { items, total, page, loading, selectItem, loadHistory } = useHistoryStore()
+  const { items, total, page, loading, selectItem, deleteItem, loadHistory } = useHistoryStore()
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const totalPages = Math.ceil(total / 20)
+
+  const handleDelete = (e: React.MouseEvent, id: string): void => {
+    e.stopPropagation()
+    if (confirmDeleteId === id) {
+      deleteItem(id)
+      setConfirmDeleteId(null)
+    } else {
+      setConfirmDeleteId(id)
+    }
+  }
 
   const formatDate = (dateStr: string): string => {
     const d = new Date(dateStr)
@@ -36,21 +48,40 @@ export function HistoryList(): JSX.Element {
         </p>
       )}
       {items.map((item) => (
-        <button
+        <div
           key={item.id}
-          onClick={() => selectItem(item)}
-          className="w-full text-left p-3 rounded-lg border border-[var(--border-default)] hover:bg-[var(--bg-hover)] transition-colors focus-visible:outline-3 focus-visible:outline-[var(--tippy-purple)]"
+          className="flex items-center gap-2 rounded-lg border border-[var(--border-default)] hover:bg-[var(--bg-hover)] transition-colors"
           role="listitem"
         >
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant={typeVariant[item.type]}>{item.type}</Badge>
-            <span className="text-xs text-[var(--text-tertiary)]">{formatDate(item.created_at)}</span>
-            {item.provider && (
-              <span className="text-xs text-[var(--text-tertiary)] ml-auto">{item.provider}</span>
-            )}
-          </div>
-          <p className="text-sm text-[var(--text-primary)] truncate">{truncate(item.input, 80)}</p>
-        </button>
+          <button
+            onClick={() => selectItem(item)}
+            className="flex-1 text-left p-3 min-w-0 focus-visible:outline-3 focus-visible:outline-[var(--tippy-purple)] rounded-l-lg"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant={typeVariant[item.type]}>{item.type}</Badge>
+              <span className="text-xs text-[var(--text-tertiary)]">{formatDate(item.created_at)}</span>
+              {item.provider && (
+                <span className="text-xs text-[var(--text-tertiary)] ml-auto">{item.provider}</span>
+              )}
+            </div>
+            <p className="text-sm text-[var(--text-primary)] truncate">{truncate(item.input, 80)}</p>
+          </button>
+          <button
+            onClick={(e) => handleDelete(e, item.id)}
+            onBlur={() => setConfirmDeleteId(null)}
+            className={`flex-shrink-0 mr-2 w-8 h-8 flex items-center justify-center rounded-lg transition-colors focus-visible:outline-3 focus-visible:outline-[var(--tippy-purple)] ${
+              confirmDeleteId === item.id
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'text-[var(--text-tertiary)] hover:text-red-500 hover:bg-[var(--bg-hover)]'
+            }`}
+            aria-label={confirmDeleteId === item.id ? 'Confirm delete' : `Delete ${item.type} analysis`}
+            title={confirmDeleteId === item.id ? 'Click again to confirm' : 'Delete'}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 4H13M6 4V3C6 2.45 6.45 2 7 2H9C9.55 2 10 2.45 10 3V4M12 4V13C12 13.55 11.55 14 11 14H5C4.45 14 4 13.55 4 13V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
       ))}
 
       {totalPages > 1 && (
