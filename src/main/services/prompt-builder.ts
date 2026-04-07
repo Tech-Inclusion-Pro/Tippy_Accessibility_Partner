@@ -5,7 +5,8 @@ export interface PromptContext {
   readabilityScores?: any
   axeResults?: any
   wcagCriteria?: any[]
-  screenerContent?: { name: string; content: string }[]
+  screenerContent?: { name: string; content: string; framework: string }[]
+  conversationStarter?: string
   userName?: string
   userContext?: string
 }
@@ -140,17 +141,29 @@ ${JSON.stringify(ctx.axeResults, null, 2)}
 }
 
 // Layer 4: Screener Knowledge Base
-function buildScreenerLayer(screeners?: { name: string; content: string }[]): string {
+function buildScreenerLayer(
+  screeners?: { name: string; content: string; framework: string }[],
+  conversationStarter?: string
+): string {
   if (!screeners || screeners.length === 0) return ''
 
   const parts: string[] = [
     '\n---\n\n## Screener Knowledge Base',
-    'The following screener documents define the detailed criteria and diagnostic questions you MUST use when analyzing content. Run through each applicable screener as a structured pre-flight check before producing your response.\n'
+    'The following screener documents define the detailed criteria and diagnostic questions you MUST use when analyzing content.',
+    '',
+    '**IMPORTANT:** You MUST produce a **separate report section** for each screener listed below. Use the heading `## <ScreenerName> Report` for each section. Do NOT merge screener analyses into a single narrative.\n'
   ]
 
   for (const screener of screeners) {
-    parts.push(`### ${screener.name}\n`)
+    parts.push(`### ${screener.name}`)
+    parts.push(`*Expected output heading:* \`## ${screener.name} Report\`\n`)
     parts.push(screener.content)
+
+    if (screener.framework === 'custom' && conversationStarter) {
+      parts.push(`\n**User guidance for this screener:** ${conversationStarter}`)
+      parts.push('Use this guidance to focus your analysis through this screener\'s lens.\n')
+    }
+
     parts.push('')
   }
 
@@ -158,7 +171,47 @@ function buildScreenerLayer(screeners?: { name: string; content: string }[]): st
 }
 
 // Response format
-function buildResponseFormat(): string {
+function buildResponseFormat(ctx: PromptContext): string {
+  // Per-screener sectioned format for file analysis with screeners
+  if (ctx.analysisType === 'file' && ctx.screenerContent && ctx.screenerContent.length > 0) {
+    const sectionList = ctx.screenerContent
+      .map((s) => `- **## ${s.name} Report** — Findings, Recommendations, Strengths`)
+      .join('\n')
+
+    return `
+---
+
+## Response Format
+You MUST structure your response with a **separate section per screener**, using these exact headings:
+
+${sectionList}
+- **## Overall Summary** — Brief synthesis across all screeners
+
+Within each screener section, use this structure:
+1. **Findings** — Issues found using this screener's criteria (with severity and references)
+2. **Recommendations** — Specific, actionable steps to address the findings
+3. **Strengths** — What the document does well from this screener's perspective
+
+End with an **## Overall Summary** that synthesizes themes across all screener reports.
+
+Use markdown formatting. For code suggestions, use fenced code blocks with the appropriate language tag.`
+  }
+
+  // Conversational format for chat
+  if (ctx.analysisType === 'chat') {
+    return `
+---
+
+## Response Format
+You are having a conversation. Respond directly and naturally to what the user is asking.
+- Answer the user's actual question or request
+- Keep responses focused and relevant to their message
+- Use markdown formatting when helpful (headings, lists, code blocks)
+- Reference WCAG criteria, UDL principles, or other frameworks only when relevant to the question
+- Be conversational and warm, not formulaic`
+  }
+
+  // Default format for URL, text analysis
   return `
 ---
 
@@ -181,9 +234,9 @@ export function buildTippySystemPrompt(ctx: PromptContext): string {
     buildIdentityLayer(),
     buildPersonalizationLayer(ctx),
     buildFrameworkLayer(frameworks),
-    buildScreenerLayer(ctx.screenerContent),
+    buildScreenerLayer(ctx.screenerContent, ctx.conversationStarter),
     buildContextLayer(ctx),
-    buildResponseFormat()
+    buildResponseFormat(ctx)
   ]
 
   return layers.filter(Boolean).join('\n')

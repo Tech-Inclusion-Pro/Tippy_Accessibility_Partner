@@ -19,8 +19,9 @@ const api = {
     url: (url: string, frameworks: string[]) =>
       ipcRenderer.invoke('analyze:url', url, frameworks),
     file: (frameworks: string[]) => ipcRenderer.invoke('analyze:file', frameworks),
-    filePath: (path: string, frameworks: string[]) =>
-      ipcRenderer.invoke('analyze:file-path', path, frameworks)
+    pickFile: () => ipcRenderer.invoke('file:pick'),
+    filePath: (path: string, frameworks: string[], conversationStarter?: string) =>
+      ipcRenderer.invoke('analyze:file-path', path, frameworks, conversationStarter)
   },
 
   // Export

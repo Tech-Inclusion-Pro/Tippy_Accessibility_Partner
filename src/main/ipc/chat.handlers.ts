@@ -39,12 +39,23 @@ export function registerChatHandlers(): void {
 
       // Load screener content for active frameworks
       const screeners = screenerService.getScreenersForFrameworks(frameworks)
-      const screenerContent = screeners.map((s) => ({ name: s.name, content: s.content }))
+      const screenerContent = screeners.map((s) => ({
+        name: s.name,
+        content: s.content,
+        framework: s.framework
+      }))
 
       const userName = settingsService.get('user_name') || undefined
       const userContext = settingsService.get('user_context') || undefined
 
-      const systemPrompt = buildTippySystemPrompt({ userMessage: message, frameworks, screenerContent, userName, userContext })
+      const systemPrompt = buildTippySystemPrompt({
+        analysisType: 'chat',
+        userMessage: message,
+        frameworks,
+        screenerContent,
+        userName,
+        userContext
+      })
       const providerManager = getProviderManager()
       const provider = await providerManager.getActiveProvider()
 

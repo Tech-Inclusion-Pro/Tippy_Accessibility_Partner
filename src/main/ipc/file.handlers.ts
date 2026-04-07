@@ -6,6 +6,29 @@ import { getSupportedExtensions } from '../services/file-extractor'
 import { historyService } from '../services/history.service'
 
 export function registerFileHandlers(): void {
+  // Pick a file without analyzing (returns file path only)
+  ipcMain.handle('file:pick', async (event) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender)
+      if (!window) throw new Error('No window')
+
+      const extensions = getSupportedExtensions().map((e) => e.slice(1))
+      const result = await dialog.showOpenDialog(window, {
+        title: 'Select a document to review',
+        filters: [{ name: 'Documents', extensions }],
+        properties: ['openFile']
+      })
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return { success: true, data: { canceled: true } }
+      }
+
+      return { success: true, data: { filePath: result.filePaths[0] } }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
   // Open file dialog and analyze
   ipcMain.handle('analyze:file', async (event, frameworks: string[]) => {
     try {
@@ -31,18 +54,21 @@ export function registerFileHandlers(): void {
     }
   })
 
-  // Analyze a file by path (for drag-and-drop)
-  ipcMain.handle('analyze:file-path', async (event, filePath: string, frameworks: string[]) => {
-    try {
-      const window = BrowserWindow.fromWebContents(event.sender)
-      if (!window) throw new Error('No window')
+  // Analyze a file by path (for drag-and-drop or two-phase upload)
+  ipcMain.handle(
+    'analyze:file-path',
+    async (event, filePath: string, frameworks: string[], conversationStarter?: string) => {
+      try {
+        const window = BrowserWindow.fromWebContents(event.sender)
+        if (!window) throw new Error('No window')
 
-      const result = await analyzeFile(filePath, frameworks, window)
-      return { success: true, data: result }
-    } catch (error: any) {
-      return { success: false, error: error.message }
+        const result = await analyzeFile(filePath, frameworks, window, conversationStarter)
+        return { success: true, data: result }
+      } catch (error: any) {
+        return { success: false, error: error.message }
+      }
     }
-  })
+  )
 
   // Export analysis as DOCX
   ipcMain.handle(

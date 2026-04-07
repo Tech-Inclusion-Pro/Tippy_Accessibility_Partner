@@ -19,7 +19,12 @@ interface TippyAPI {
     text: (text: string, frameworks: string[]) => Promise<IpcResponse>
     url: (url: string, frameworks: string[]) => Promise<IpcResponse>
     file: (frameworks: string[]) => Promise<IpcResponse>
-    filePath: (path: string, frameworks: string[]) => Promise<IpcResponse>
+    pickFile: () => Promise<IpcResponse<{ canceled?: boolean; filePath?: string }>>
+    filePath: (
+      path: string,
+      frameworks: string[],
+      conversationStarter?: string
+    ) => Promise<IpcResponse>
   }
   export: {
     docx: (options: {

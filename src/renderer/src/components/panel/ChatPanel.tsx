@@ -9,6 +9,7 @@ import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
 import { CloudWarningBanner } from './CloudWarningBanner'
 import { AnalysisResults } from './AnalysisResults'
+import { ConversationStarterModal } from './ConversationStarterModal'
 import { Badge } from '../common/Badge'
 import tippyAvatar from '../../assets/tippy-avatar.png'
 
@@ -43,6 +44,8 @@ export function ChatPanel(): JSX.Element {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const streamBuffer = useRef('')
   const [saveStatus, setSaveStatus] = useState<string | null>(null)
+  const [showConversationStarter, setShowConversationStarter] = useState(false)
+  const [pendingFilePath, setPendingFilePath] = useState<string | null>(null)
 
   useEffect(() => {
     loadSettings()
@@ -78,49 +81,9 @@ export function ChatPanel(): JSX.Element {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const handleFileClick = useCallback(async () => {
-    analysisStore.reset()
-    analysisStore.setAnalyzing(true, 'file')
-    analysisStore.setStatusMessage('Opening file dialog...')
-
-    const result = await window.api.analyze.file(activeFrameworks)
-    if (result.success && result.data?.canceled) {
-      analysisStore.reset()
-      return
-    }
-    if (!result.success) {
-      analysisStore.setAnalyzing(false)
-      analysisStore.setStatusMessage('')
-      const userMsg: ChatMessage = {
-        id: uuidv4(),
-        role: 'user',
-        content: `[File upload failed: ${result.error}]`,
-        timestamp: Date.now()
-      }
-      addMessage(userMsg)
-      return
-    }
-
-    // Add a user message showing the filename
-    const filePath = result.data?.filePath || 'document'
-    const filename = filePath.split('/').pop() || filePath
-    analysisStore.setUploadedFilename(filename)
-    if (result.data?.id) {
-      analysisStore.setAnalysisId(result.data.id)
-    }
-
-    const userMsg: ChatMessage = {
-      id: uuidv4(),
-      role: 'user',
-      content: `📄 Uploaded: ${filename}`,
-      timestamp: Date.now()
-    }
-    addMessage(userMsg)
-  }, [activeFrameworks, analysisStore, addMessage])
-
-  const handleFileDrop = useCallback(
-    async (path: string) => {
-      const filename = path.split('/').pop() || path
+  const startFileAnalysis = useCallback(
+    async (filePath: string, conversationStarter?: string) => {
+      const filename = filePath.split('/').pop() || filePath
       analysisStore.reset()
       analysisStore.setAnalyzing(true, 'file')
       analysisStore.setUploadedFilename(filename)
@@ -134,7 +97,11 @@ export function ChatPanel(): JSX.Element {
       }
       addMessage(userMsg)
 
-      const result = await window.api.analyze.filePath(path, activeFrameworks)
+      const result = await window.api.analyze.filePath(
+        filePath,
+        activeFrameworks,
+        conversationStarter
+      )
       if (!result.success) {
         analysisStore.setAnalyzing(false)
         analysisStore.setStatusMessage('')
@@ -151,6 +118,73 @@ export function ChatPanel(): JSX.Element {
     },
     [activeFrameworks, analysisStore, addMessage]
   )
+
+  const checkCustomScreenersAndAnalyze = useCallback(
+    async (filePath: string) => {
+      const screenersResult = await window.api.screener.list()
+      const hasCustom =
+        screenersResult.success &&
+        screenersResult.data?.some((s: { builtIn: boolean }) => !s.builtIn)
+
+      if (hasCustom) {
+        setPendingFilePath(filePath)
+        setShowConversationStarter(true)
+      } else {
+        startFileAnalysis(filePath)
+      }
+    },
+    [startFileAnalysis]
+  )
+
+  const handleFileClick = useCallback(async () => {
+    const pickResult = await window.api.analyze.pickFile()
+    if (!pickResult.success) {
+      const userMsg: ChatMessage = {
+        id: uuidv4(),
+        role: 'user',
+        content: `[File upload failed: ${pickResult.error}]`,
+        timestamp: Date.now()
+      }
+      addMessage(userMsg)
+      return
+    }
+    if (pickResult.data?.canceled || !pickResult.data?.filePath) {
+      return
+    }
+
+    await checkCustomScreenersAndAnalyze(pickResult.data.filePath)
+  }, [addMessage, checkCustomScreenersAndAnalyze])
+
+  const handleFileDrop = useCallback(
+    async (path: string) => {
+      await checkCustomScreenersAndAnalyze(path)
+    },
+    [checkCustomScreenersAndAnalyze]
+  )
+
+  const handleConversationStarterSubmit = useCallback(
+    (text: string) => {
+      setShowConversationStarter(false)
+      if (pendingFilePath) {
+        startFileAnalysis(pendingFilePath, text)
+        setPendingFilePath(null)
+      }
+    },
+    [pendingFilePath, startFileAnalysis]
+  )
+
+  const handleConversationStarterSkip = useCallback(() => {
+    setShowConversationStarter(false)
+    if (pendingFilePath) {
+      startFileAnalysis(pendingFilePath)
+      setPendingFilePath(null)
+    }
+  }, [pendingFilePath, startFileAnalysis])
+
+  const handleConversationStarterCancel = useCallback(() => {
+    setShowConversationStarter(false)
+    setPendingFilePath(null)
+  }, [])
 
   const handleSend = useCallback(
     async (text: string) => {
@@ -309,7 +343,7 @@ export function ChatPanel(): JSX.Element {
       {/* Message area */}
       <div
         id="main-content"
-        className="flex-1 overflow-y-auto"
+        className="flex-1 min-h-0 overflow-y-auto"
         role="list"
         aria-label="Conversation messages"
       >
@@ -356,7 +390,16 @@ export function ChatPanel(): JSX.Element {
         onFileClick={handleFileClick}
         onFileDrop={handleFileDrop}
         disabled={isStreaming || analysisStore.isAnalyzing}
+        loading={isStreaming || analysisStore.isAnalyzing}
       />
+
+      {showConversationStarter && (
+        <ConversationStarterModal
+          onSubmit={handleConversationStarterSubmit}
+          onSkip={handleConversationStarterSkip}
+          onCancel={handleConversationStarterCancel}
+        />
+      )}
     </div>
   )
 }

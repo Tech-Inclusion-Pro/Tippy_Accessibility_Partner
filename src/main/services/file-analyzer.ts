@@ -10,7 +10,8 @@ import { settingsService } from './settings.service'
 export async function analyzeFile(
   filePath: string,
   frameworks: string[],
-  window: BrowserWindow
+  window: BrowserWindow,
+  conversationStarter?: string
 ): Promise<{ id: string }> {
   // Step 1: Extract text
   window.webContents.send('analysis:status', {
@@ -30,7 +31,7 @@ export async function analyzeFile(
 
   // Step 3: Build prompt
   const screeners = screenerService.getScreenersForFrameworks(frameworks)
-  const screenerContent = screeners.map((s) => ({ name: s.name, content: s.content }))
+  const screenerContent = screeners.map((s) => ({ name: s.name, content: s.content, framework: s.framework }))
 
   const userName = settingsService.get('user_name') || undefined
   const userContext = settingsService.get('user_context') || undefined
@@ -40,6 +41,7 @@ export async function analyzeFile(
     frameworks,
     readabilityScores: scores,
     screenerContent,
+    conversationStarter,
     userName,
     userContext
   })

@@ -8,6 +8,7 @@ interface ChatInputProps {
   onFileClick?: () => void
   onFileDrop?: (path: string) => void
   disabled?: boolean
+  loading?: boolean
   placeholder?: string
 }
 
@@ -16,6 +17,7 @@ export function ChatInput({
   onFileClick,
   onFileDrop,
   disabled,
+  loading,
   placeholder = 'Ask TIPPY about accessibility...'
 }: ChatInputProps): JSX.Element {
   const [input, setInput] = useState('')
@@ -92,7 +94,7 @@ export function ChatInput({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={clsx(
-        'flex items-end gap-2 p-3 border-t transition-colors',
+        'flex items-end gap-2 p-3 border-t transition-colors flex-shrink-0',
         isDragging
           ? 'border-2 border-dashed border-[var(--tippy-purple)] bg-purple-50/10'
           : 'border-[var(--border-default)]'
@@ -155,14 +157,38 @@ export function ChatInput({
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'focus-visible:outline-3 focus-visible:outline-[var(--tippy-purple)]'
         )}
-        aria-label="Send message"
+        aria-label={loading ? 'TIPPY is responding...' : 'Send message'}
       >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <path
-            d="M3 10L17 3L10 17L9 11L3 10Z"
-            fill="currentColor"
-          />
-        </svg>
+        {loading ? (
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+            className="animate-spin"
+          >
+            <circle
+              cx="10"
+              cy="10"
+              r="8"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              opacity="0.25"
+            />
+            <path
+              d="M10 2a8 8 0 0 1 8 8"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 10L17 3L10 17L9 11L3 10Z" fill="currentColor" />
+          </svg>
+        )}
       </button>
     </form>
   )
