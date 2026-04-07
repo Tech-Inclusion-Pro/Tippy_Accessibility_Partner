@@ -11,7 +11,7 @@ export interface StreamCallbacks {
 
 export interface AIProvider {
   name: string
-  type: 'ollama' | 'anthropic'
+  type: 'ollama' | 'anthropic' | 'openai' | 'google'
   isLocal: boolean
   stream(messages: AIMessage[], callbacks: StreamCallbacks): Promise<void>
   testConnection(): Promise<boolean>

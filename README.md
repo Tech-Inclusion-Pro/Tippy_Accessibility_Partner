@@ -22,7 +22,9 @@ TIPPY lives on your desktop as a floating, draggable widget — always ready to 
 - **Chat Interface** — Have conversations with TIPPY about accessibility topics
 - **Multi-Framework Analysis** — Toggle between WCAG, UDL, DisCrit, and Plain Language frameworks
 - **Local-First AI** — Use Ollama for fully local analysis (no data leaves your machine)
-- **Cloud AI Option** — Bring your own Anthropic API key for cloud-powered analysis
+- **Multi-Provider Cloud AI** — Bring your own API key for Anthropic, OpenAI, or Google Gemini
+- **About Me Personalization** — Enter your name and work context so TIPPY tailors responses to you
+- **First-Time Setup Wizard** — Guided onboarding walks you through personalization and provider setup
 - **Audit History** — All analyses are saved locally for reference
 - **Global Shortcut** — Toggle TIPPY visibility with `Cmd/Ctrl+Shift+T`
 - **System Tray** — Quick access from the menu bar
@@ -92,7 +94,7 @@ codesign --force --deep --sign - "/Applications/TIPPY - Accessibility Partner.ap
 4. **Full Panel** — Click the arrow to open the full panel with Chat, History, and Settings
 5. **Chat** — Type questions about accessibility or paste content for analysis
 6. **URL Scan** — Paste a URL to run an automated accessibility audit
-7. **Settings** — Configure your AI provider (Ollama local or Anthropic cloud)
+7. **Settings** — Configure your AI provider (Ollama, Anthropic, OpenAI, or Google Gemini)
 8. **History** — View past analyses in the History tab
 9. **Toggle** — Press `Cmd/Ctrl+Shift+T` to show/hide TIPPY at any time
 
@@ -139,4 +141,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-Built with care by [Tech Inclusion Pro](https://techinclusion.pro)
+Built with care by Rocco Catrone of [Tech Inclusion Pro, LLC](https://techinclusion.pro)

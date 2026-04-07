@@ -4,6 +4,7 @@ import { buildTippySystemPrompt } from './prompt-builder'
 import { getProviderManager } from './provider-manager'
 import { historyService } from './history.service'
 import { screenerService } from './screener.service'
+import { settingsService } from './settings.service'
 
 export async function analyzeText(
   text: string,
@@ -16,11 +17,16 @@ export async function analyzeText(
   const screeners = screenerService.getScreenersForFrameworks(frameworks)
   const screenerContent = screeners.map((s) => ({ name: s.name, content: s.content }))
 
+  const userName = settingsService.get('user_name') || undefined
+  const userContext = settingsService.get('user_context') || undefined
+
   const systemPrompt = buildTippySystemPrompt({
     analysisType: 'text',
     frameworks,
     readabilityScores: scores,
-    screenerContent
+    screenerContent,
+    userName,
+    userContext
   })
 
   const providerManager = getProviderManager()

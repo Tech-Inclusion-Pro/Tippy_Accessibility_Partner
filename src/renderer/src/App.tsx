@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useWindowStore, AppView } from './stores/window.store'
+import { useSettingsStore } from './stores/settings.store'
 import { useKeyboardNavigation } from './hooks/useKeyboardNavigation'
 import { MiniWidget } from './components/widget/MiniWidget'
 import { ChatPanel } from './components/panel/ChatPanel'
 import { SettingsView } from './views/SettingsView'
 import { HistoryView } from './views/HistoryView'
 import { SkipLink } from './components/common/SkipLink'
+import { SetupWizard } from './components/onboarding/SetupWizard'
 
 function getInitialView(): AppView {
   const hash = window.location.hash.replace('#/', '').replace('/', '')
@@ -78,12 +80,29 @@ function PanelNav({ currentView, onNavigate }: { currentView: AppView; onNavigat
 
 export default function App(): JSX.Element {
   const { currentView, setView } = useWindowStore()
+  const { settings, loadSettings } = useSettingsStore()
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [onboardingChecked, setOnboardingChecked] = useState(false)
   useKeyboardNavigation()
 
   // Set initial view from URL hash
   useEffect(() => {
     setView(getInitialView())
   }, [setView])
+
+  // Check onboarding status on mount
+  useEffect(() => {
+    loadSettings().then(() => {
+      setOnboardingChecked(true)
+    })
+  }, [loadSettings])
+
+  // Determine whether to show onboarding after settings are loaded
+  useEffect(() => {
+    if (onboardingChecked && currentView !== 'widget') {
+      setShowOnboarding(settings.onboarding_complete !== 'true')
+    }
+  }, [onboardingChecked, settings.onboarding_complete, currentView])
 
   // Listen for navigation from main process
   useEffect(() => {
@@ -104,9 +123,18 @@ export default function App(): JSX.Element {
     }
   }, [currentView])
 
-  // Widget mode — no nav
+  // Widget mode — no nav, no onboarding
   if (currentView === 'widget') {
     return <MiniWidget />
+  }
+
+  // Show onboarding wizard overlay
+  if (showOnboarding) {
+    return (
+      <div className="flex flex-col h-screen bg-[var(--bg-app)]">
+        <SetupWizard onComplete={() => setShowOnboarding(false)} />
+      </div>
+    )
   }
 
   // Panel mode

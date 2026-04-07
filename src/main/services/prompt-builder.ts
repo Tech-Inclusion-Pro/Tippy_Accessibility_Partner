@@ -6,6 +6,8 @@ export interface PromptContext {
   axeResults?: any
   wcagCriteria?: any[]
   screenerContent?: { name: string; content: string }[]
+  userName?: string
+  userContext?: string
 }
 
 // Layer 1: Identity & Personality
@@ -35,6 +37,22 @@ You are an expert in:
 - Include specific WCAG criterion references (e.g., "WCAG 1.1.1 Non-text Content")
 - Provide actionable, concrete suggestions
 - Acknowledge intersectionality in accessibility`
+}
+
+// Layer 1b: User Personalization
+function buildPersonalizationLayer(ctx: PromptContext): string {
+  if (!ctx.userName && !ctx.userContext) return ''
+
+  const parts: string[] = ['\n---\n\n## About the User']
+  if (ctx.userName) {
+    parts.push(`- **Name:** ${ctx.userName}`)
+    parts.push(`Address the user by name when appropriate to keep the conversation warm and personal.`)
+  }
+  if (ctx.userContext) {
+    parts.push(`- **Work context:** ${ctx.userContext}`)
+    parts.push(`Tailor your advice and examples to the user's role and domain whenever relevant.`)
+  }
+  return parts.join('\n')
 }
 
 // Layer 2: Framework Knowledge
@@ -158,6 +176,7 @@ export function buildTippySystemPrompt(ctx: PromptContext): string {
 
   const layers: string[] = [
     buildIdentityLayer(),
+    buildPersonalizationLayer(ctx),
     buildFrameworkLayer(frameworks),
     buildScreenerLayer(ctx.screenerContent),
     buildContextLayer(ctx),

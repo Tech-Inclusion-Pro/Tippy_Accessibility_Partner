@@ -1,5 +1,6 @@
 import { SkipLink } from '../components/common/SkipLink'
 import { ProviderConfig } from '../components/settings/ProviderConfig'
+import { AboutMeSettings } from '../components/settings/AboutMeSettings'
 import { ReasoningSettings } from '../components/settings/ReasoningSettings'
 
 export function SettingsView(): JSX.Element {
@@ -11,6 +12,10 @@ export function SettingsView(): JSX.Element {
       </header>
       <main id="settings-content" className="flex-1 overflow-y-auto p-4">
         <div className="max-w-md mx-auto flex flex-col gap-8">
+          <AboutMeSettings />
+
+          <hr className="border-[var(--border-default)]" />
+
           <ProviderConfig />
 
           <hr className="border-[var(--border-default)]" />
@@ -23,7 +28,7 @@ export function SettingsView(): JSX.Element {
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">About</h3>
             <div className="text-sm text-[var(--text-secondary)] space-y-1">
               <p>TIPPY - Accessibility Partner v1.0.0</p>
-              <p>By Tech Inclusion Pro</p>
+              <p>By Rocco Catrone of Tech Inclusion Pro, LLC</p>
               <p className="text-xs text-[var(--text-tertiary)]">
                 AI-powered accessibility analysis using WCAG 2.1 AA, UDL, DisCrit, and Plain Language frameworks.
               </p>

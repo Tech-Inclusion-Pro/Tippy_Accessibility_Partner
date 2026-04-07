@@ -7,6 +7,7 @@ import { registerAllHandlers } from './ipc'
 import { initializeDatabase, closeDatabase } from './db/connection'
 import { loadWCAGData } from './services/wcag-data.service'
 import { screenerService } from './services/screener.service'
+import { settingsService } from './services/settings.service'
 
 let tray: Tray | null = null
 let windowManager: WindowManager | null = null
@@ -69,6 +70,12 @@ app.whenReady().then(() => {
   // Create window manager and show widget
   windowManager = new WindowManager()
   windowManager.createWidget()
+
+  // Auto-open panel on first launch so onboarding wizard is visible
+  const onboardingComplete = settingsService.get('onboarding_complete')
+  if (onboardingComplete !== 'true') {
+    windowManager.showPanel('chat')
+  }
 
   // System tray
   createTray()

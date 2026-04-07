@@ -1,6 +1,8 @@
 import { AIProvider } from './ai-provider.interface'
 import { OllamaProvider } from './ollama.provider'
 import { AnthropicProvider } from './anthropic.provider'
+import { OpenAIProvider } from './openai.provider'
+import { GoogleProvider } from './google.provider'
 import { settingsService } from './settings.service'
 import { safeStorageService } from './safe-storage.service'
 
@@ -17,6 +19,20 @@ class ProviderManager {
       return new AnthropicProvider(apiKey, modelId)
     }
 
+    if (providerType === 'openai') {
+      const apiKey = safeStorageService.retrieveApiKey('openai')
+      if (!apiKey) throw new Error('No OpenAI API key configured. Please add it in Settings.')
+      const modelId = settingsService.get('openai_model') || 'gpt-4o'
+      return new OpenAIProvider(apiKey, modelId)
+    }
+
+    if (providerType === 'google') {
+      const apiKey = safeStorageService.retrieveApiKey('google')
+      if (!apiKey) throw new Error('No Google Gemini API key configured. Please add it in Settings.')
+      const modelId = settingsService.get('google_model') || 'gemini-2.0-flash'
+      return new GoogleProvider(apiKey, modelId)
+    }
+
     // Default to Ollama
     const baseUrl = settingsService.get('ollama_url') || 'http://localhost:11434'
     const modelId = settingsService.get('ollama_model') || ''
@@ -28,6 +44,10 @@ class ProviderManager {
       let provider: AIProvider
       if (providerType === 'anthropic') {
         provider = new AnthropicProvider(config.apiKey || '', config.modelId)
+      } else if (providerType === 'openai') {
+        provider = new OpenAIProvider(config.apiKey || '', config.modelId)
+      } else if (providerType === 'google') {
+        provider = new GoogleProvider(config.apiKey || '', config.modelId)
       } else {
         provider = new OllamaProvider(config.baseUrl, config.modelId)
       }

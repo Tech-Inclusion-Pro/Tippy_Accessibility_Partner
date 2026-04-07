@@ -3,6 +3,7 @@ import { buildTippySystemPrompt } from './prompt-builder'
 import { getProviderManager } from './provider-manager'
 import { historyService } from './history.service'
 import { screenerService } from './screener.service'
+import { settingsService } from './settings.service'
 
 export interface AxeResult {
   violations: any[]
@@ -72,10 +73,15 @@ export async function analyzeUrl(
   const screeners = screenerService.getScreenersForFrameworks(frameworks)
   const screenerContent = screeners.map((s) => ({ name: s.name, content: s.content }))
 
+  const userName = settingsService.get('user_name') || undefined
+  const userContext = settingsService.get('user_context') || undefined
+
   const systemPrompt = buildTippySystemPrompt({
     analysisType: 'url',
     frameworks,
     screenerContent,
+    userName,
+    userContext,
     axeResults: {
       violationCount: axeResults.violations.length,
       passCount: axeResults.passes.length,
