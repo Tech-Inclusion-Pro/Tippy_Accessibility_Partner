@@ -3,8 +3,35 @@ import { getProviderManager } from '../services/provider-manager'
 import { buildTippySystemPrompt } from '../services/prompt-builder'
 import { screenerService } from '../services/screener.service'
 import { settingsService } from '../services/settings.service'
+import { historyService } from '../services/history.service'
 
 export function registerChatHandlers(): void {
+  ipcMain.handle('chat:save-session', async (_event, messages: any[], frameworks: string[]) => {
+    try {
+      const firstUserMsg = messages.find((m: any) => m.role === 'user')
+      const input = firstUserMsg
+        ? firstUserMsg.content.substring(0, 100) + (firstUserMsg.content.length > 100 ? '...' : '')
+        : 'Chat session'
+
+      const result = messages
+        .map((m: any) => `**${m.role === 'user' ? 'You' : 'TIPPY'}:** ${m.content}`)
+        .join('\n\n')
+
+      const id = historyService.save({
+        type: 'chat',
+        input,
+        result,
+        scores: null,
+        frameworks: JSON.stringify(frameworks),
+        provider: null
+      })
+
+      return { success: true, data: { id } }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
   ipcMain.handle('chat:message', async (event, message: string, history: any[], frameworks: string[]) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender)

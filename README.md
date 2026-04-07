@@ -19,13 +19,17 @@ TIPPY lives on your desktop as a floating, draggable widget — always ready to 
 - **Floating Desktop Widget** — Draggable TIPPY icon that lives on your desktop; click to expand the chat bar, or open the full panel
 - **Text Analysis** — Paste text to get readability scores (Flesch-Kincaid) and AI-powered plain language suggestions
 - **URL Analysis** — Enter a URL to run automated accessibility scans (axe-core) with AI-powered remediation guidance
+- **Document Analysis** — Upload files (PDF, DOCX, TXT, HTML) for accessibility review with drag-and-drop support
 - **Chat Interface** — Have conversations with TIPPY about accessibility topics
+- **Chat Session Management** — Save chat sessions to history, start new chats, or end sessions with automatic saving
 - **Multi-Framework Analysis** — Toggle between WCAG, UDL, DisCrit, and Plain Language frameworks
 - **Local-First AI** — Use Ollama for fully local analysis (no data leaves your machine)
 - **Multi-Provider Cloud AI** — Bring your own API key for Anthropic, OpenAI, or Google Gemini
 - **About Me Personalization** — Enter your name and work context so TIPPY tailors responses to you
 - **First-Time Setup Wizard** — Guided onboarding walks you through personalization and provider setup
 - **Audit History** — All analyses are saved locally for reference
+- **Themes Report** — AI-generated report that identifies patterns and recurring themes across your audit history
+- **DOCX Export** — Download any analysis or themes report as a Word document
 - **Global Shortcut** — Toggle TIPPY visibility with `Cmd/Ctrl+Shift+T`
 - **System Tray** — Quick access from the menu bar
 - **Accessible by Design** — Built with WCAG 2.1 AA compliance, keyboard navigation, screen reader support
@@ -95,8 +99,10 @@ codesign --force --deep --sign - "/Applications/TIPPY - Accessibility Partner.ap
 5. **Chat** — Type questions about accessibility or paste content for analysis
 6. **URL Scan** — Paste a URL to run an automated accessibility audit
 7. **Settings** — Configure your AI provider (Ollama, Anthropic, OpenAI, or Google Gemini)
-8. **History** — View past analyses in the History tab
-9. **Toggle** — Press `Cmd/Ctrl+Shift+T` to show/hide TIPPY at any time
+8. **Upload** — Drag and drop files or click the upload button for document analysis
+9. **History** — View past analyses in the History tab
+10. **Themes Report** — Click "Report on Themes" in History to get an AI-generated patterns analysis
+11. **Toggle** — Press `Cmd/Ctrl+Shift+T` to show/hide TIPPY at any time
 
 ## Architecture
 

@@ -1,11 +1,29 @@
+import { useCallback } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useHistoryStore } from '../../stores/history.store'
 import { Badge } from '../common/Badge'
 import { Button } from '../common/Button'
 
+const typeBadgeVariant = {
+  text: 'teal' as const,
+  url: 'purple' as const,
+  chat: 'info' as const,
+  file: 'warning' as const
+}
+
 export function HistoryDetail(): JSX.Element | null {
   const { selectedItem, selectItem, deleteItem } = useHistoryStore()
+
+  const handleDownloadDocx = useCallback(async () => {
+    if (!selectedItem) return
+    const frameworks = selectedItem.frameworks ? JSON.parse(selectedItem.frameworks) : []
+    await window.api.export.docx({
+      content: selectedItem.result,
+      title: `TIPPY Analysis — ${selectedItem.input}`,
+      frameworks
+    })
+  }, [selectedItem])
 
   if (!selectedItem) return null
 
@@ -24,13 +42,16 @@ export function HistoryDetail(): JSX.Element | null {
             <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
-        <Badge variant={selectedItem.type === 'url' ? 'purple' : 'teal'}>
+        <Badge variant={typeBadgeVariant[selectedItem.type] || 'default'}>
           {selectedItem.type}
         </Badge>
         <span className="text-xs text-[var(--text-tertiary)]">
           {new Date(selectedItem.created_at).toLocaleString()}
         </span>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={handleDownloadDocx}>
+            Download DOCX
+          </Button>
           <Button
             variant="danger"
             size="sm"

@@ -1,9 +1,12 @@
+import { useCallback } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useAnalysisStore } from '../../stores/analysis.store'
+import { useChatStore } from '../../stores/chat.store'
 import { ScoreBadge } from './ScoreBadge'
 import { IssueCard } from './IssueCard'
 import { Spinner } from '../common/Spinner'
+import { Button } from '../common/Button'
 
 interface AnalysisResultsProps {
   onExplainIssue?: (issueId: string) => void
@@ -13,6 +16,16 @@ interface AnalysisResultsProps {
 export function AnalysisResults({ onExplainIssue, onFixIssue }: AnalysisResultsProps): JSX.Element {
   const { isAnalyzing, analysisType, streamedContent, statusMessage, axeResults } =
     useAnalysisStore()
+  const { activeFrameworks } = useChatStore()
+
+  const handleDownloadDocx = useCallback(async () => {
+    if (!streamedContent) return
+    await window.api.export.docx({
+      content: streamedContent,
+      title: 'TIPPY Accessibility Analysis',
+      frameworks: activeFrameworks
+    })
+  }, [streamedContent, activeFrameworks])
 
   if (!isAnalyzing && !streamedContent && !axeResults) {
     return <div />
@@ -75,6 +88,15 @@ export function AnalysisResults({ onExplainIssue, onFixIssue }: AnalysisResultsP
               <span className="inline-block w-2 h-4 bg-[var(--tippy-purple)] animate-pulse" aria-hidden="true" />
             )}
           </div>
+
+          {/* Download DOCX button */}
+          {!isAnalyzing && (
+            <div className="mt-4">
+              <Button variant="secondary" size="sm" onClick={handleDownloadDocx}>
+                Download DOCX
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

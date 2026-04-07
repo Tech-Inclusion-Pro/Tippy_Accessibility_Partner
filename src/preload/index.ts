@@ -17,13 +17,24 @@ const api = {
     text: (text: string, frameworks: string[]) =>
       ipcRenderer.invoke('analyze:text', text, frameworks),
     url: (url: string, frameworks: string[]) =>
-      ipcRenderer.invoke('analyze:url', url, frameworks)
+      ipcRenderer.invoke('analyze:url', url, frameworks),
+    file: (frameworks: string[]) => ipcRenderer.invoke('analyze:file', frameworks),
+    filePath: (path: string, frameworks: string[]) =>
+      ipcRenderer.invoke('analyze:file-path', path, frameworks)
+  },
+
+  // Export
+  export: {
+    docx: (options: { content: string; title?: string; frameworks?: string[] }) =>
+      ipcRenderer.invoke('export:docx', options)
   },
 
   // Chat
   chat: {
     message: (message: string, history: any[], frameworks: string[]) =>
-      ipcRenderer.invoke('chat:message', message, history, frameworks)
+      ipcRenderer.invoke('chat:message', message, history, frameworks),
+    saveSession: (messages: any[], frameworks: string[]) =>
+      ipcRenderer.invoke('chat:save-session', messages, frameworks)
   },
 
   // Settings
@@ -45,7 +56,8 @@ const api = {
     list: (page?: number, limit?: number, filters?: any) =>
       ipcRenderer.invoke('history:list', page, limit, filters),
     get: (id: string) => ipcRenderer.invoke('history:get', id),
-    delete: (id: string) => ipcRenderer.invoke('history:delete', id)
+    delete: (id: string) => ipcRenderer.invoke('history:delete', id),
+    reportThemes: () => ipcRenderer.invoke('history:report-themes')
   },
 
   // Screeners (reasoning knowledge base)

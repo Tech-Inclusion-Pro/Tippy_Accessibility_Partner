@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useChatStore, ChatMessage } from '../../stores/chat.store'
 import { useAnalysisStore } from '../../stores/analysis.store'
@@ -21,7 +21,7 @@ const FRAMEWORK_OPTIONS = [
 
 const QUICK_PROMPTS = [
   'Check a URL for accessibility',
-  'Review my text for plain language',
+  'Upload a document for review',
   'Explain WCAG 2.1 AA requirements',
   'What is Universal Design for Learning?'
 ]
@@ -34,13 +34,15 @@ export function ChatPanel(): JSX.Element {
     addMessage,
     updateLastAssistant,
     setStreaming,
-    setActiveFrameworks
+    setActiveFrameworks,
+    clearMessages
   } = useChatStore()
   const analysisStore = useAnalysisStore()
   const { loadSettings } = useSettingsStore()
   const announce = useAnnounce()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const streamBuffer = useRef('')
+  const [saveStatus, setSaveStatus] = useState<string | null>(null)
 
   useEffect(() => {
     loadSettings()
@@ -76,8 +78,88 @@ export function ChatPanel(): JSX.Element {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  const handleFileClick = useCallback(async () => {
+    analysisStore.reset()
+    analysisStore.setAnalyzing(true, 'file')
+    analysisStore.setStatusMessage('Opening file dialog...')
+
+    const result = await window.api.analyze.file(activeFrameworks)
+    if (result.success && result.data?.canceled) {
+      analysisStore.reset()
+      return
+    }
+    if (!result.success) {
+      analysisStore.setAnalyzing(false)
+      analysisStore.setStatusMessage('')
+      const userMsg: ChatMessage = {
+        id: uuidv4(),
+        role: 'user',
+        content: `[File upload failed: ${result.error}]`,
+        timestamp: Date.now()
+      }
+      addMessage(userMsg)
+      return
+    }
+
+    // Add a user message showing the filename
+    const filePath = result.data?.filePath || 'document'
+    const filename = filePath.split('/').pop() || filePath
+    analysisStore.setUploadedFilename(filename)
+    if (result.data?.id) {
+      analysisStore.setAnalysisId(result.data.id)
+    }
+
+    const userMsg: ChatMessage = {
+      id: uuidv4(),
+      role: 'user',
+      content: `📄 Uploaded: ${filename}`,
+      timestamp: Date.now()
+    }
+    addMessage(userMsg)
+  }, [activeFrameworks, analysisStore, addMessage])
+
+  const handleFileDrop = useCallback(
+    async (path: string) => {
+      const filename = path.split('/').pop() || path
+      analysisStore.reset()
+      analysisStore.setAnalyzing(true, 'file')
+      analysisStore.setUploadedFilename(filename)
+      analysisStore.setStatusMessage('Analyzing document...')
+
+      const userMsg: ChatMessage = {
+        id: uuidv4(),
+        role: 'user',
+        content: `📄 Uploaded: ${filename}`,
+        timestamp: Date.now()
+      }
+      addMessage(userMsg)
+
+      const result = await window.api.analyze.filePath(path, activeFrameworks)
+      if (!result.success) {
+        analysisStore.setAnalyzing(false)
+        analysisStore.setStatusMessage('')
+        const errorMsg: ChatMessage = {
+          id: uuidv4(),
+          role: 'user',
+          content: `[File analysis failed: ${result.error}]`,
+          timestamp: Date.now()
+        }
+        addMessage(errorMsg)
+      } else if (result.data?.id) {
+        analysisStore.setAnalysisId(result.data.id)
+      }
+    },
+    [activeFrameworks, analysisStore, addMessage]
+  )
+
   const handleSend = useCallback(
     async (text: string) => {
+      // Handle the "Upload a document" quick prompt
+      if (text === 'Upload a document for review') {
+        handleFileClick()
+        return
+      }
+
       const userMessage: ChatMessage = {
         id: uuidv4(),
         role: 'user',
@@ -127,8 +209,25 @@ export function ChatPanel(): JSX.Element {
 
       await window.api.chat.message(text, history, activeFrameworks)
     },
-    [messages, activeFrameworks, addMessage, setStreaming, updateLastAssistant, analysisStore, announce]
+    [messages, activeFrameworks, addMessage, setStreaming, updateLastAssistant, analysisStore, announce, handleFileClick]
   )
+
+  const handleSaveSession = useCallback(async () => {
+    if (messages.length === 0) return
+    const result = await window.api.chat.saveSession(messages, activeFrameworks)
+    if (result.success) {
+      setSaveStatus('Saved!')
+      setTimeout(() => setSaveStatus(null), 2000)
+    }
+  }, [messages, activeFrameworks])
+
+  const handleNewChat = useCallback(async () => {
+    if (messages.length > 0) {
+      await window.api.chat.saveSession(messages, activeFrameworks)
+    }
+    clearMessages()
+    analysisStore.reset()
+  }, [messages, activeFrameworks, clearMessages, analysisStore])
 
   const toggleFramework = (id: string): void => {
     if (activeFrameworks.includes(id)) {
@@ -165,6 +264,47 @@ export function ChatPanel(): JSX.Element {
           </button>
         ))}
       </div>
+
+      {/* Session controls */}
+      {messages.length > 0 && (
+        <div className="flex items-center gap-2 px-3 py-1.5 border-b border-[var(--border-default)]" role="toolbar" aria-label="Session controls">
+          <button
+            onClick={handleSaveSession}
+            disabled={isStreaming || analysisStore.isAnalyzing}
+            className="flex items-center gap-1 px-2 py-1 rounded text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-3 focus-visible:outline-[var(--tippy-purple)]"
+            aria-label="Save session"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M12.5 14H3.5C2.67 14 2 13.33 2 12.5V3.5C2 2.67 2.67 2 3.5 2H10.5L14 5.5V12.5C14 13.33 13.33 14 12.5 14Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M11 14V9H5V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M5 2V5H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {saveStatus || 'Save'}
+          </button>
+          <button
+            onClick={handleNewChat}
+            disabled={isStreaming || analysisStore.isAnalyzing}
+            className="flex items-center gap-1 px-2 py-1 rounded text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-3 focus-visible:outline-[var(--tippy-purple)]"
+            aria-label="New chat"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 3V13M3 8H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            New Chat
+          </button>
+          <button
+            onClick={handleNewChat}
+            disabled={isStreaming || analysisStore.isAnalyzing}
+            className="flex items-center gap-1 px-2 py-1 rounded text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-3 focus-visible:outline-[var(--tippy-purple)]"
+            aria-label="End chat"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            End Chat
+          </button>
+        </div>
+      )}
 
       {/* Message area */}
       <div
@@ -211,7 +351,12 @@ export function ChatPanel(): JSX.Element {
         )}
       </div>
 
-      <ChatInput onSend={handleSend} disabled={isStreaming || analysisStore.isAnalyzing} />
+      <ChatInput
+        onSend={handleSend}
+        onFileClick={handleFileClick}
+        onFileDrop={handleFileDrop}
+        disabled={isStreaming || analysisStore.isAnalyzing}
+      />
     </div>
   )
 }

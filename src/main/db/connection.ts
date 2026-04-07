@@ -32,7 +32,7 @@ export function initializeDatabase(): void {
 
     CREATE TABLE IF NOT EXISTS audit_history (
       id TEXT PRIMARY KEY,
-      type TEXT NOT NULL CHECK(type IN ('text', 'url', 'chat')),
+      type TEXT NOT NULL CHECK(type IN ('text', 'url', 'chat', 'file')),
       input TEXT NOT NULL,
       result TEXT NOT NULL,
       scores TEXT,
@@ -41,6 +41,29 @@ export function initializeDatabase(): void {
       created_at TEXT DEFAULT (datetime('now'))
     );
   `)
+
+  // Migration: update CHECK constraint if table already exists with old constraint
+  try {
+    db.prepare("INSERT INTO audit_history (id, type, input, result) VALUES ('__test__', 'file', '', '')").run()
+    db.prepare("DELETE FROM audit_history WHERE id = '__test__'").run()
+  } catch {
+    // Old constraint doesn't allow 'file' — recreate the table
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS audit_history_new (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL CHECK(type IN ('text', 'url', 'chat', 'file')),
+        input TEXT NOT NULL,
+        result TEXT NOT NULL,
+        scores TEXT,
+        frameworks TEXT,
+        provider TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+      INSERT INTO audit_history_new SELECT * FROM audit_history;
+      DROP TABLE audit_history;
+      ALTER TABLE audit_history_new RENAME TO audit_history;
+    `)
+  }
 }
 
 export function closeDatabase(): void {

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 export interface AuditRecord {
   id: string
-  type: 'text' | 'url' | 'chat'
+  type: 'text' | 'url' | 'chat' | 'file'
   input: string
   result: string
   scores: string | null

@@ -1,7 +1,7 @@
 export interface PromptContext {
   userMessage?: string
   frameworks?: string[]
-  analysisType?: 'text' | 'url' | 'chat'
+  analysisType?: 'text' | 'url' | 'chat' | 'file'
   readabilityScores?: any
   axeResults?: any
   wcagCriteria?: any[]
@@ -110,6 +110,9 @@ function buildContextLayer(ctx: PromptContext): string {
 
   if (ctx.analysisType) {
     parts.push(`- **Analysis type:** ${ctx.analysisType}`)
+    if (ctx.analysisType === 'file') {
+      parts.push(`- **Note:** This is an uploaded document. Focus on the document's content quality, readability, and accessibility of the text itself.`)
+    }
   }
 
   if (ctx.readabilityScores) {

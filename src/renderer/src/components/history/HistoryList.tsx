@@ -4,7 +4,8 @@ import { Badge } from '../common/Badge'
 const typeVariant = {
   text: 'teal' as const,
   url: 'purple' as const,
-  chat: 'info' as const
+  chat: 'info' as const,
+  file: 'warning' as const
 }
 
 export function HistoryList(): JSX.Element {

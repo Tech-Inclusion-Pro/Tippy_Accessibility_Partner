@@ -18,9 +18,19 @@ interface TippyAPI {
   analyze: {
     text: (text: string, frameworks: string[]) => Promise<IpcResponse>
     url: (url: string, frameworks: string[]) => Promise<IpcResponse>
+    file: (frameworks: string[]) => Promise<IpcResponse>
+    filePath: (path: string, frameworks: string[]) => Promise<IpcResponse>
+  }
+  export: {
+    docx: (options: {
+      content: string
+      title?: string
+      frameworks?: string[]
+    }) => Promise<IpcResponse<{ saved: boolean; path?: string }>>
   }
   chat: {
     message: (message: string, history: any[], frameworks: string[]) => Promise<IpcResponse>
+    saveSession: (messages: any[], frameworks: string[]) => Promise<IpcResponse<{ id: string }>>
   }
   settings: {
     get: (key: string) => Promise<IpcResponse<string | null>>
@@ -50,6 +60,7 @@ interface TippyAPI {
     ) => Promise<IpcResponse<{ items: any[]; total: number }>>
     get: (id: string) => Promise<IpcResponse>
     delete: (id: string) => Promise<IpcResponse>
+    reportThemes: () => Promise<IpcResponse<{ id: string }>>
   }
   onStreamToken: (
     channel: string,
