@@ -119,9 +119,19 @@ export default function App(): JSX.Element {
       const raw = localStorage.getItem('tippy-a11y-settings')
       if (raw) {
         const a11y = JSON.parse(raw)
-        // Re-apply CSS classes — the AccessibilitySettings component's applyAllSettings
-        // handles this when the settings view mounts, but we need it on initial load too
         const html = document.documentElement
+
+        // Theme
+        const theme = a11y.theme || 'system'
+        if (theme === 'dark') {
+          html.classList.add('dark')
+        } else if (theme === 'light') {
+          html.classList.remove('dark')
+        } else {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          html.classList.toggle('dark', prefersDark)
+        }
+
         if (a11y.highContrast) html.classList.add('a11y-high-contrast')
         if (a11y.fontSize && a11y.fontSize !== 100) {
           html.classList.add('a11y-font-scaled')

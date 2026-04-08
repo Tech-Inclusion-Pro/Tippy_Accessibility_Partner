@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface A11ySettings {
+  theme: 'light' | 'dark' | 'system'
   highContrast: boolean
   fontSize: number
   colorBlindMode: string
@@ -14,6 +15,7 @@ interface A11ySettings {
 }
 
 const DEFAULTS: A11ySettings = {
+  theme: 'system',
   highContrast: false,
   fontSize: 100,
   colorBlindMode: 'none',
@@ -146,9 +148,39 @@ function ensureColorBlindFilters(): void {
   document.body.appendChild(svg)
 }
 
+// ── Theme management ──
+let systemThemeCleanup: (() => void) | null = null
+
+function applyTheme(theme: 'light' | 'dark' | 'system'): void {
+  const html = document.documentElement
+
+  // Clean up previous system listener
+  systemThemeCleanup?.()
+  systemThemeCleanup = null
+
+  if (theme === 'dark') {
+    html.classList.add('dark')
+  } else if (theme === 'light') {
+    html.classList.remove('dark')
+  } else {
+    // System: match OS preference and listen for changes
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const apply = (e: MediaQueryList | MediaQueryListEvent): void => {
+      html.classList.toggle('dark', e.matches)
+    }
+    apply(mq)
+    const handler = (e: MediaQueryListEvent): void => apply(e)
+    mq.addEventListener('change', handler)
+    systemThemeCleanup = () => mq.removeEventListener('change', handler)
+  }
+}
+
 // ── Apply all settings to DOM ──
 function applyAllSettings(settings: A11ySettings): void {
   const html = document.documentElement
+
+  // Theme
+  applyTheme(settings.theme)
 
   // High contrast
   html.classList.toggle('a11y-high-contrast', settings.highContrast)
@@ -285,6 +317,48 @@ export function AccessibilitySettings(): JSX.Element {
       </p>
 
       <div className="flex flex-col gap-5">
+        {/* ── Theme ── */}
+        <fieldset className="flex flex-col gap-3">
+          <legend className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-1">
+            Theme
+          </legend>
+
+          <div className="flex gap-2">
+            {(['light', 'dark', 'system'] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => update({ theme: t })}
+                className={`flex-1 flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-lg border text-xs font-medium transition-colors focus-visible:outline-3 focus-visible:outline-[var(--tippy-purple)] ${
+                  settings.theme === t
+                    ? 'border-[var(--tippy-purple)] bg-[var(--tippy-purple)]/10 text-[var(--tippy-purple)]'
+                    : 'border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                }`}
+                aria-pressed={settings.theme === t}
+                aria-label={`${t.charAt(0).toUpperCase() + t.slice(1)} theme`}
+              >
+                {t === 'light' && (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <circle cx="9" cy="9" r="3.5" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M9 2V3.5M9 14.5V16M2 9H3.5M14.5 9H16M4.1 4.1L5.2 5.2M12.8 12.8L13.9 13.9M4.1 13.9L5.2 12.8M12.8 5.2L13.9 4.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                )}
+                {t === 'dark' && (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <path d="M15 10.5A6.5 6.5 0 0 1 7.5 3 6.5 6.5 0 1 0 15 10.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+                {t === 'system' && (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <rect x="2" y="3" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M6 16H12M9 13V16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                )}
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
         {/* ── Vision ── */}
         <fieldset className="flex flex-col gap-3">
           <legend className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-1">
