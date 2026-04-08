@@ -156,3 +156,132 @@ body {
 .no-drag {
   -webkit-app-region: no-drag;
 }
+
+/* ─── Accessibility: Font Scale ─── */
+:root {
+  --a11y-font-scale: 1;
+}
+
+.a11y-font-scaled body,
+.a11y-font-scaled .prose,
+.a11y-font-scaled p,
+.a11y-font-scaled li,
+.a11y-font-scaled span,
+.a11y-font-scaled td,
+.a11y-font-scaled th,
+.a11y-font-scaled label,
+.a11y-font-scaled input,
+.a11y-font-scaled textarea,
+.a11y-font-scaled select,
+.a11y-font-scaled button {
+  font-size: calc(1em * var(--a11y-font-scale)) !important;
+}
+
+.a11y-font-scaled h1 { font-size: calc(2em * var(--a11y-font-scale)) !important; }
+.a11y-font-scaled h2 { font-size: calc(1.5em * var(--a11y-font-scale)) !important; }
+.a11y-font-scaled h3 { font-size: calc(1.25em * var(--a11y-font-scale)) !important; }
+
+/* ─── Accessibility: High Contrast ─── */
+.a11y-high-contrast {
+  --bg-app: #ffffff !important;
+  --bg-surface: #ffffff !important;
+  --bg-surface-raised: #ffffff !important;
+  --bg-muted: #f0f0f0 !important;
+  --bg-hover: #e0e0e0 !important;
+  --bg-active: #d0d0d0 !important;
+  --text-primary: #000000 !important;
+  --text-secondary: #1a1a1a !important;
+  --text-tertiary: #333333 !important;
+  --border-default: #000000 !important;
+  --border-strong: #000000 !important;
+}
+
+.a11y-high-contrast.dark {
+  --bg-app: #000000 !important;
+  --bg-surface: #0a0a0a !important;
+  --bg-surface-raised: #1a1a1a !important;
+  --bg-muted: #111111 !important;
+  --bg-hover: #222222 !important;
+  --bg-active: #333333 !important;
+  --text-primary: #ffffff !important;
+  --text-secondary: #f0f0f0 !important;
+  --text-tertiary: #cccccc !important;
+  --border-default: #ffffff !important;
+  --border-strong: #ffffff !important;
+}
+
+/* ─── Accessibility: Color Blind Filters ─── */
+.a11y-colorblind-filter {
+  position: fixed;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.a11y-cb-protanopia { filter: url(#a11y-protanopia) !important; }
+.a11y-cb-deuteranopia { filter: url(#a11y-deuteranopia) !important; }
+.a11y-cb-tritanopia { filter: url(#a11y-tritanopia) !important; }
+.a11y-cb-achromatopsia { filter: grayscale(100%) !important; }
+
+/* ─── Accessibility: Reduced Motion ─── */
+.a11y-reduced-motion *,
+.a11y-reduced-motion *::before,
+.a11y-reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ─── Accessibility: Cursor Styles ─── */
+.a11y-cursor-large *,
+.a11y-cursor-large {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 2L5 28L12 21L19 28L23 24L16 17L25 17Z' fill='black' stroke='white' stroke-width='2'/%3E%3C/svg%3E") 5 2, auto !important;
+}
+
+.a11y-cursor-crosshair *,
+.a11y-cursor-crosshair {
+  cursor: crosshair !important;
+}
+
+/* ─── Accessibility: OpenDyslexic Font ─── */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+.a11y-dyslexic,
+.a11y-dyslexic * {
+  font-family: 'OpenDyslexic', var(--font-sans) !important;
+}
+
+/* ─── Accessibility: Enhanced Text Spacing ─── */
+.a11y-text-spacing,
+.a11y-text-spacing * {
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+  line-height: 1.8 !important;
+}
+
+/* ─── Accessibility: Enhanced Focus Indicators ─── */
+.a11y-enhanced-focus *:focus-visible {
+  outline: 3px solid var(--tippy-purple) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* ─── Accessibility: Bionic Reading ─── */
+.a11y-bionic b.bionic-bold {
+  font-weight: 700;
+}

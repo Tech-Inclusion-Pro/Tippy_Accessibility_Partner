@@ -112,6 +112,38 @@ export default function App(): JSX.Element {
     return cleanup
   }, [setView])
 
+  // Apply saved accessibility settings on startup
+  useEffect(() => {
+    if (currentView === 'widget') return
+    try {
+      const raw = localStorage.getItem('tippy-a11y-settings')
+      if (raw) {
+        const a11y = JSON.parse(raw)
+        // Re-apply CSS classes — the AccessibilitySettings component's applyAllSettings
+        // handles this when the settings view mounts, but we need it on initial load too
+        const html = document.documentElement
+        if (a11y.highContrast) html.classList.add('a11y-high-contrast')
+        if (a11y.fontSize && a11y.fontSize !== 100) {
+          html.classList.add('a11y-font-scaled')
+          html.style.setProperty('--a11y-font-scale', String(a11y.fontSize / 100))
+        }
+        if (a11y.colorBlindMode && a11y.colorBlindMode !== 'none') {
+          html.classList.add(`a11y-cb-${a11y.colorBlindMode}`)
+        }
+        if (a11y.reducedMotion) html.classList.add('a11y-reduced-motion')
+        if (a11y.cursorStyle && a11y.cursorStyle !== 'default') {
+          html.classList.add(`a11y-cursor-${a11y.cursorStyle}`)
+        }
+        if (a11y.dyslexicFont) html.classList.add('a11y-dyslexic')
+        if (a11y.textSpacing) html.classList.add('a11y-text-spacing')
+        if (a11y.enhancedFocus) html.classList.add('a11y-enhanced-focus')
+        if (a11y.bionicReading) html.classList.add('a11y-bionic')
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [currentView])
+
   // Make body transparent in widget mode, opaque in panel mode
   useEffect(() => {
     if (currentView === 'widget') {

@@ -34,6 +34,7 @@ TIPPY lives on your desktop as a floating, draggable widget — always ready to 
 - **DOCX Export** — Download any analysis or themes report as a Word document
 - **Global Shortcut** — Toggle TIPPY visibility with `Cmd/Ctrl+Shift+T`
 - **System Tray** — Quick access from the menu bar
+- **Built-In Accessibility Settings** — 10 configurable options: high contrast, font scaling, color blind modes (protanopia, deuteranopia, tritanopia, achromatopsia), reduced motion, cursor styles, cursor trail, OpenDyslexic font, bionic reading, enhanced text spacing, and enhanced focus indicators
 - **Accessible by Design** — Built with WCAG 2.1 AA compliance, keyboard navigation, screen reader support
 
 ## Quick Start
