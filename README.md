@@ -14,6 +14,69 @@ TIPPY is a cross-platform desktop application that serves as your AI accessibili
 
 TIPPY lives on your desktop as a floating, draggable widget — always ready to help. Click the icon to ask a question, or open the full panel for in-depth analysis.
 
+## Download
+
+Download the latest release for your platform:
+
+| Platform | Download | Notes |
+|----------|----------|-------|
+| macOS (Apple Silicon) | [tippy-desktop-1.0.0-arm64.dmg](https://github.com/Tech-Inclusion-Pro/Tippy_Accessibility_Partner/releases/download/v1.0.0/tippy-desktop-1.0.0-arm64.dmg) | For M1/M2/M3/M4 Macs |
+| macOS (Intel) | [tippy-desktop-1.0.0-x64.dmg](https://github.com/Tech-Inclusion-Pro/Tippy_Accessibility_Partner/releases/download/v1.0.0/tippy-desktop-1.0.0-x64.dmg) | For older Intel-based Macs |
+| Windows | [tippy-desktop-1.0.0-setup.exe](https://github.com/Tech-Inclusion-Pro/Tippy_Accessibility_Partner/releases/download/v1.0.0/tippy-desktop-1.0.0-setup.exe) | Windows installer (64-bit) |
+| Linux (AppImage) | [tippy-desktop-1.0.0-x86_64.AppImage](https://github.com/Tech-Inclusion-Pro/Tippy_Accessibility_Partner/releases/download/v1.0.0/tippy-desktop-1.0.0-x86_64.AppImage) | Portable Linux app (64-bit) |
+| Linux (Debian/Ubuntu) | [tippy-desktop_1.0.0_amd64.deb](https://github.com/Tech-Inclusion-Pro/Tippy_Accessibility_Partner/releases/download/v1.0.0/tippy-desktop_1.0.0_amd64.deb) | `.deb` package (64-bit) |
+
+> [View all releases](https://github.com/Tech-Inclusion-Pro/Tippy_Accessibility_Partner/releases)
+
+### Installation Instructions
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+1. Download the `.dmg` file for your Mac type (Apple Silicon or Intel)
+2. Open the `.dmg` file
+3. Drag **TIPPY - Accessibility Partner** to your **Applications** folder
+4. On first launch, right-click the app and select **Open** (required to bypass macOS Gatekeeper for unsigned apps)
+5. TIPPY will appear as a floating widget on your desktop
+
+> **Not sure which Mac you have?** Click the Apple menu > **About This Mac**. If you see "Apple M1/M2/M3/M4" under Chip, download the Apple Silicon version. If you see "Intel", download the Intel version.
+
+</details>
+
+<details>
+<summary><strong>Windows</strong></summary>
+
+1. Download `tippy-desktop-1.0.0-setup.exe`
+2. Run the installer and follow the setup wizard
+3. Launch TIPPY from the Start menu or desktop shortcut
+
+</details>
+
+<details>
+<summary><strong>Linux</strong></summary>
+
+**AppImage (any distro):**
+```bash
+chmod +x tippy-desktop-1.0.0-x86_64.AppImage
+./tippy-desktop-1.0.0-x86_64.AppImage
+```
+
+**Debian/Ubuntu (.deb):**
+```bash
+sudo dpkg -i tippy-desktop_1.0.0_amd64.deb
+```
+
+</details>
+
+### AI Provider Setup
+
+TIPPY requires an AI provider to function. On first launch, the setup wizard will guide you through configuration:
+
+- **Ollama (recommended)** — Free, local, and private. No data leaves your machine. [Install Ollama](https://ollama.ai), then run `ollama pull gemma3:4b`
+- **Anthropic (Claude)** — Bring your own API key from [console.anthropic.com](https://console.anthropic.com)
+- **OpenAI (GPT)** — Bring your own API key from [platform.openai.com](https://platform.openai.com)
+- **Google Gemini** — Bring your own API key from [aistudio.google.com](https://aistudio.google.com)
+
 ## Features
 
 - **Floating Desktop Widget** — Draggable TIPPY icon that lives on your desktop; click to open the full panel
@@ -75,9 +138,9 @@ npm install playwright @axe-core/playwright
 npx playwright install chromium
 ```
 
-## Install as Desktop App
+## Build from Source
 
-Build TIPPY as a native desktop application:
+If you prefer to build TIPPY yourself instead of using the [pre-built releases](#download):
 
 ```bash
 # Build for macOS
@@ -90,7 +153,7 @@ npm run build:win
 npm run build:linux
 ```
 
-On macOS, after building, copy the app to your Applications folder:
+Built artifacts will be in the `dist/` directory. On macOS, copy the app to your Applications folder:
 
 ```bash
 cp -R "dist/mac-arm64/TIPPY - Accessibility Partner.app" /Applications/
