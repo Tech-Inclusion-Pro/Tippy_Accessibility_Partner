@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm'
 import { useHistoryStore } from '../../stores/history.store'
 import { Badge } from '../common/Badge'
 import { Button } from '../common/Button'
+import { MoveToFolderMenu } from './MoveToFolderMenu'
 
 const typeBadgeVariant = {
   text: 'teal' as const,
@@ -49,6 +50,7 @@ export function HistoryDetail(): JSX.Element | null {
           {new Date(selectedItem.created_at).toLocaleString()}
         </span>
         <div className="ml-auto flex items-center gap-2">
+          <MoveToFolderMenu itemId={selectedItem.id} currentFolderId={selectedItem.folder_id} />
           <Button variant="secondary" size="sm" onClick={handleDownloadDocx}>
             Download DOCX
           </Button>

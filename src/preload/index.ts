@@ -58,7 +58,20 @@ const api = {
       ipcRenderer.invoke('history:list', page, limit, filters),
     get: (id: string) => ipcRenderer.invoke('history:get', id),
     delete: (id: string) => ipcRenderer.invoke('history:delete', id),
-    reportThemes: () => ipcRenderer.invoke('history:report-themes')
+    reportThemes: () => ipcRenderer.invoke('history:report-themes'),
+    moveToFolder: (ids: string | string[], folderId: string | null) =>
+      ipcRenderer.invoke('history:move-to-folder', ids, folderId),
+    getDbPath: () => ipcRenderer.invoke('history:get-db-path'),
+    setDbPath: () => ipcRenderer.invoke('history:set-db-path'),
+    resetDbPath: () => ipcRenderer.invoke('history:reset-db-path')
+  },
+
+  // Folders
+  folder: {
+    list: () => ipcRenderer.invoke('folder:list'),
+    create: (name: string) => ipcRenderer.invoke('folder:create', name),
+    rename: (id: string, name: string) => ipcRenderer.invoke('folder:rename', id, name),
+    delete: (id: string) => ipcRenderer.invoke('folder:delete', id)
   },
 
   // Screeners (reasoning knowledge base)

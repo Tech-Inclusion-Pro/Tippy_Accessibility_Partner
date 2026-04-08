@@ -3,6 +3,7 @@ import { ProviderConfig } from '../components/settings/ProviderConfig'
 import { AboutMeSettings } from '../components/settings/AboutMeSettings'
 import { ReasoningSettings } from '../components/settings/ReasoningSettings'
 import { AccessibilitySettings } from '../components/settings/AccessibilitySettings'
+import { HistoryLocationSettings } from '../components/settings/HistoryLocationSettings'
 
 export function SettingsView(): JSX.Element {
   return (
@@ -26,6 +27,10 @@ export function SettingsView(): JSX.Element {
           <hr className="border-[var(--border-default)]" />
 
           <AccessibilitySettings />
+
+          <hr className="border-[var(--border-default)]" />
+
+          <HistoryLocationSettings />
 
           <hr className="border-[var(--border-default)]" />
 

@@ -8,6 +8,7 @@ export interface HistoryItem {
   scores: string | null
   frameworks: string | null
   provider: string | null
+  folder_id: string | null
   created_at: string
 }
 
@@ -20,13 +21,21 @@ interface HistoryState {
   reportContent: string
   isReporting: boolean
   showReport: boolean
-  loadHistory: (page?: number, filters?: any) => Promise<void>
+  searchQuery: string
+  typeFilter: string | null
+  folderFilter: string | null
+  _searchTimeout: ReturnType<typeof setTimeout> | null
+  loadHistory: (page?: number) => Promise<void>
   selectItem: (item: HistoryItem | null) => void
   deleteItem: (id: string) => Promise<void>
   setReporting: (reporting: boolean) => void
   appendReportContent: (token: string) => void
   setShowReport: (show: boolean) => void
   clearReport: () => void
+  setSearchQuery: (query: string) => void
+  setTypeFilter: (type: string | null) => void
+  setFolderFilter: (folderId: string | null) => void
+  moveToFolder: (ids: string | string[], folderId: string | null) => Promise<void>
 }
 
 export const useHistoryStore = create<HistoryState>((set, get) => ({
@@ -38,8 +47,18 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   reportContent: '',
   isReporting: false,
   showReport: false,
+  searchQuery: '',
+  typeFilter: null,
+  folderFilter: null,
+  _searchTimeout: null,
 
-  loadHistory: async (page = 1, filters?) => {
+  loadHistory: async (page = 1) => {
+    const { searchQuery, typeFilter, folderFilter } = get()
+    const filters: any = {}
+    if (searchQuery) filters.search = searchQuery
+    if (typeFilter) filters.type = typeFilter
+    if (folderFilter !== null) filters.folderId = folderFilter
+
     set({ loading: true })
     const result = await window.api.history.list(page, 20, filters)
     if (result.success && result.data) {
@@ -53,8 +72,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
 
   deleteItem: async (id) => {
     await window.api.history.delete(id)
-    const { page } = get()
-    get().loadHistory(page)
+    get().loadHistory(get().page)
   },
 
   setReporting: (isReporting) => set({ isReporting }),
@@ -64,5 +82,32 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
 
   setShowReport: (showReport) => set({ showReport }),
 
-  clearReport: () => set({ reportContent: '', isReporting: false, showReport: false })
+  clearReport: () => set({ reportContent: '', isReporting: false, showReport: false }),
+
+  setSearchQuery: (query: string) => {
+    const { _searchTimeout } = get()
+    if (_searchTimeout) clearTimeout(_searchTimeout)
+
+    set({ searchQuery: query })
+
+    const timeout = setTimeout(() => {
+      get().loadHistory(1)
+    }, 300)
+    set({ _searchTimeout: timeout })
+  },
+
+  setTypeFilter: (type: string | null) => {
+    set({ typeFilter: type })
+    get().loadHistory(1)
+  },
+
+  setFolderFilter: (folderId: string | null) => {
+    set({ folderFilter: folderId })
+    get().loadHistory(1)
+  },
+
+  moveToFolder: async (ids: string | string[], folderId: string | null) => {
+    await window.api.history.moveToFolder(ids, folderId)
+    get().loadHistory(get().page)
+  }
 }))

@@ -9,16 +9,17 @@ export interface AuditRecord {
   scores: string | null
   frameworks: string | null
   provider: string | null
+  folder_id: string | null
   created_at: string
 }
 
 class HistoryService {
-  save(record: Omit<AuditRecord, 'id' | 'created_at'>): string {
+  save(record: Omit<AuditRecord, 'id' | 'created_at'> & { folder_id?: string | null }): string {
     const db = getDatabase()
     const id = uuidv4()
     db.prepare(
-      'INSERT INTO audit_history (id, type, input, result, scores, frameworks, provider) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).run(id, record.type, record.input, record.result, record.scores, record.frameworks, record.provider)
+      'INSERT INTO audit_history (id, type, input, result, scores, frameworks, provider, folder_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(id, record.type, record.input, record.result, record.scores, record.frameworks, record.provider, record.folder_id ?? null)
     return id
   }
 
@@ -30,7 +31,7 @@ class HistoryService {
   list(
     page: number = 1,
     limit: number = 20,
-    filters?: { type?: string; startDate?: string; endDate?: string }
+    filters?: { type?: string; startDate?: string; endDate?: string; search?: string; folderId?: string | null }
   ): { items: AuditRecord[]; total: number } {
     const db = getDatabase()
     let where = 'WHERE 1=1'
@@ -47,6 +48,19 @@ class HistoryService {
     if (filters?.endDate) {
       where += ' AND created_at <= ?'
       params.push(filters.endDate)
+    }
+    if (filters?.search) {
+      where += ' AND (input LIKE ? OR result LIKE ?)'
+      const term = `%${filters.search}%`
+      params.push(term, term)
+    }
+    if (filters?.folderId !== undefined && filters?.folderId !== null) {
+      if (filters.folderId === '__unfiled__') {
+        where += ' AND folder_id IS NULL'
+      } else {
+        where += ' AND folder_id = ?'
+        params.push(filters.folderId)
+      }
     }
 
     const total = (
@@ -66,6 +80,22 @@ class HistoryService {
   delete(id: string): void {
     const db = getDatabase()
     db.prepare('DELETE FROM audit_history WHERE id = ?').run(id)
+  }
+
+  updateFolder(id: string, folderId: string | null): void {
+    const db = getDatabase()
+    db.prepare('UPDATE audit_history SET folder_id = ? WHERE id = ?').run(folderId, id)
+  }
+
+  bulkUpdateFolder(ids: string[], folderId: string | null): void {
+    const db = getDatabase()
+    const update = db.prepare('UPDATE audit_history SET folder_id = ? WHERE id = ?')
+    const transaction = db.transaction((itemIds: string[]) => {
+      for (const id of itemIds) {
+        update.run(folderId, id)
+      }
+    })
+    transaction(ids)
   }
 }
 

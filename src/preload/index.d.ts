@@ -66,6 +66,16 @@ interface TippyAPI {
     get: (id: string) => Promise<IpcResponse>
     delete: (id: string) => Promise<IpcResponse>
     reportThemes: () => Promise<IpcResponse<{ id: string }>>
+    moveToFolder: (ids: string | string[], folderId: string | null) => Promise<IpcResponse>
+    getDbPath: () => Promise<IpcResponse<string>>
+    setDbPath: () => Promise<IpcResponse<{ canceled: boolean; path: string }>>
+    resetDbPath: () => Promise<IpcResponse<string>>
+  }
+  folder: {
+    list: () => Promise<IpcResponse<{ id: string; name: string; created_at: string; itemCount: number }[]>>
+    create: (name: string) => Promise<IpcResponse<{ id: string }>>
+    rename: (id: string, name: string) => Promise<IpcResponse>
+    delete: (id: string) => Promise<IpcResponse>
   }
   onStreamToken: (
     channel: string,

@@ -1,6 +1,7 @@
-import { ipcMain, BrowserWindow } from 'electron'
+import { ipcMain, BrowserWindow, dialog } from 'electron'
 import { historyService } from '../services/history.service'
 import { getProviderManager } from '../services/provider-manager'
+import { getDbPath, setCustomDbPath, resetDbPath } from '../db/connection'
 
 export function registerHistoryHandlers(): void {
   ipcMain.handle('history:report-themes', async (event) => {
@@ -105,6 +106,58 @@ ${summary}`
     try {
       historyService.delete(id)
       return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('history:move-to-folder', async (_event, ids: string | string[], folderId: string | null) => {
+    try {
+      const idArray = Array.isArray(ids) ? ids : [ids]
+      if (idArray.length === 1) {
+        historyService.updateFolder(idArray[0], folderId)
+      } else {
+        historyService.bulkUpdateFolder(idArray, folderId)
+      }
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('history:get-db-path', async () => {
+    try {
+      return { success: true, data: getDbPath() }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('history:set-db-path', async (event) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender)
+      if (!window) throw new Error('No window')
+
+      const result = await dialog.showOpenDialog(window, {
+        title: 'Choose Database Location',
+        properties: ['openDirectory', 'createDirectory']
+      })
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return { success: true, data: { canceled: true, path: getDbPath() } }
+      }
+
+      const newPath = setCustomDbPath(result.filePaths[0])
+      return { success: true, data: { canceled: false, path: newPath } }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('history:reset-db-path', async () => {
+    try {
+      const defaultPath = resetDbPath()
+      return { success: true, data: defaultPath }
     } catch (error: any) {
       return { success: false, error: error.message }
     }

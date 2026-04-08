@@ -30,6 +30,10 @@ TIPPY lives on your desktop as a floating, draggable widget — always ready to 
 - **About Me Personalization** — Enter your name and work context so TIPPY tailors responses to you
 - **First-Time Setup Wizard** — Guided onboarding walks you through personalization and provider setup
 - **Audit History** — All analyses are saved locally; delete individual items from the list or detail view
+- **History Search** — Full-text search across history inputs and results with 300ms debounced filtering
+- **Type Filtering** — Filter history by type (Text, URL, Chat, File) using toggleable chips
+- **Folders** — Create, rename, and delete folders to organize history items; move items between folders from the list or detail view
+- **Custom Database Location** — Choose where your history database is stored on your computer via Settings
 - **Themes Report** — AI-generated report that identifies patterns and recurring themes across your audit history
 - **DOCX Export** — Download any analysis or themes report as a Word document
 - **Global Shortcut** — Toggle TIPPY visibility with `Cmd/Ctrl+Shift+T`
@@ -102,9 +106,11 @@ codesign --force --deep --sign - "/Applications/TIPPY - Accessibility Partner.ap
 5. **URL Scan** — Paste a URL to run an automated accessibility audit
 6. **Settings** — Configure your AI provider (Ollama, Anthropic, OpenAI, or Google Gemini)
 7. **Upload** — Drag and drop files or click the upload button for document analysis
-8. **History** — View past analyses in the History tab; delete items directly from the list
-9. **Themes Report** — Click "Report on Themes" in History to get an AI-generated patterns analysis
-10. **Toggle** — Press `Cmd/Ctrl+Shift+T` to show/hide TIPPY at any time
+8. **History** — View past analyses in the History tab; search, filter by type, or organize into folders
+9. **Folders** — Click "Folders" in the History toolbar to create folders, then use the folder icon on any item to move it
+10. **Themes Report** — Click "Report on Themes" in History to get an AI-generated patterns analysis
+11. **Database Location** — In Settings, scroll to "History Database Location" to change where your data is stored
+12. **Toggle** — Press `Cmd/Ctrl+Shift+T` to show/hide TIPPY at any time
 
 ## Architecture
 
